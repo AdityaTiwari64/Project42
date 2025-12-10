@@ -36,7 +36,7 @@ export default function Contact() {
                   <Github size={20} />
                 </a>
                 <a 
-                  href="https://linkedin.com/in/aditya-tiwari" 
+                  href="https://www.linkedin.com/in/aditya-tiwari-85b258216?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" 
                   className="w-12 h-12 flex items-center justify-center border border-primary/40 text-primary hover:bg-primary hover:text-black transition-all"
                 >
                   <Linkedin size={20} />
