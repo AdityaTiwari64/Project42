@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Menu, X, Github, Linkedin, Mail } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import resumePdf from "@assets/resume_Aditya_Anil_Tiwari_1765379185632.pdf";
 
@@ -18,22 +18,22 @@ export default function Nav() {
   }, []);
 
   const links = [
-    { name: "About", href: "#about" },
-    { name: "Skills", href: "#skills" },
-    { name: "Experience", href: "#experience" },
-    { name: "Projects", href: "#projects" },
-    { name: "Contact", href: "#contact" },
+    { name: "// ABOUT", href: "#about" },
+    { name: "// SKILLS", href: "#skills" },
+    { name: "// EXPERIENCE", href: "#experience" },
+    { name: "// PROJECTS", href: "#projects" },
+    { name: "// CONTACT", href: "#contact" },
   ];
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "py-4 bg-background/80 backdrop-blur-md border-b border-border/40" : "py-6 bg-transparent"
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 font-mono ${
+        scrolled ? "py-4 bg-black/90 border-b border-primary/30" : "py-6 bg-transparent"
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-display font-bold text-gradient cursor-pointer">
-          Aditya.
+        <Link href="/" className="text-xl font-bold text-primary tracking-tighter hover:text-white transition-colors cursor-pointer">
+          &lt;ADITYA /&gt;
         </Link>
 
         {/* Desktop Nav */}
@@ -42,19 +42,24 @@ export default function Nav() {
             <a
               key={link.name}
               href={link.href}
-              className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium"
+              className="text-primary/70 hover:text-primary transition-colors text-xs font-bold tracking-widest"
             >
               {link.name}
             </a>
           ))}
-          <Button variant="outline" size="sm" className="ml-4 border-primary/20 hover:bg-primary/10 hover:text-primary" asChild>
-            <a href={resumePdf} target="_blank" rel="noopener noreferrer">Resume</a>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="ml-4 border-primary text-primary hover:bg-primary hover:text-black rounded-none font-bold" 
+            asChild
+          >
+            <a href={resumePdf} target="_blank" rel="noopener noreferrer">DOWNLOAD_CV</a>
           </Button>
         </div>
 
         {/* Mobile Nav Toggle */}
         <button
-          className="md:hidden text-foreground"
+          className="md:hidden text-primary"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <X /> : <Menu />}
@@ -66,20 +71,20 @@ export default function Nav() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute top-full left-0 right-0 bg-background border-b border-border p-6 md:hidden flex flex-col gap-4 shadow-2xl"
+          className="absolute top-full left-0 right-0 bg-black border-b border-primary/50 p-6 md:hidden flex flex-col gap-4 shadow-2xl"
         >
           {links.map((link) => (
             <a
               key={link.name}
               href={link.href}
-              className="text-lg font-medium text-foreground/80 hover:text-primary"
+              className="text-lg font-mono font-bold text-primary hover:text-white"
               onClick={() => setIsOpen(false)}
             >
               {link.name}
             </a>
           ))}
-          <Button className="w-full mt-2 bg-primary hover:bg-primary/90 text-white" asChild>
-            <a href={resumePdf} target="_blank" rel="noopener noreferrer">Resume</a>
+          <Button className="w-full mt-2 bg-primary hover:bg-primary/90 text-black font-bold rounded-none" asChild>
+            <a href={resumePdf} target="_blank" rel="noopener noreferrer">DOWNLOAD_CV</a>
           </Button>
         </motion.div>
       )}

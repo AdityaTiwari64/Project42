@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { ExternalLink, Github, ArrowUpRight } from "lucide-react";
+import { ExternalLink, Github, ArrowUpRight, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 const projects = [
   {
@@ -19,16 +18,16 @@ const projects = [
     github: "#"
   },
   {
-    title: "Cisco Community VITB Website",
-    description: "Full-stack platform for 500+ students with authentication, event management, and real-time notifications.",
-    tags: ["Next.js", "MongoDB", "TailwindCSS", "Node.js"],
+    title: "Skycrate | Cloud Storage",
+    description: "Built a robust cloud storage solution tackling real user problems. Featured at VIT Project Exhibition.",
+    tags: ["Cloud Computing", "Web Dev", "Storage"],
     link: "#",
     github: "#"
   },
   {
-    title: "LLM-Powered Code Assistant",
-    description: "AI-powered code completion and debugging assistant using fine-tuned language models and transformer architectures.",
-    tags: ["Transformers", "FastAPI", "React", "Python"],
+    title: "Cisco Community VITB Website",
+    description: "Full-stack platform for 500+ students with authentication, event management, and real-time notifications.",
+    tags: ["Next.js", "MongoDB", "TailwindCSS", "Node.js"],
     link: "#",
     github: "#"
   }
@@ -36,17 +35,19 @@ const projects = [
 
 export default function Projects() {
   return (
-    <section id="projects" className="py-24 bg-muted/30">
+    <section id="projects" className="py-24 bg-black border-t border-primary/20">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div>
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Featured <span className="text-gradient">Projects</span></h2>
-            <p className="text-muted-foreground max-w-xl">
-              A selection of projects exploring AI agents, geospatial data, and scalable web systems.
+            <h2 className="text-3xl md:text-4xl font-mono font-bold mb-4 text-white">
+              &lt;DEPLOYED_MODULES /&gt;
+            </h2>
+            <p className="text-primary/60 font-mono">
+              Directory of compiled applications and research.
             </p>
           </div>
-          <Button variant="outline" className="gap-2">
-            View All Projects <ArrowUpRight size={16} />
+          <Button variant="outline" className="gap-2 border-primary text-primary hover:bg-primary hover:text-black font-mono rounded-none">
+            VIEW_ALL <ArrowUpRight size={16} />
           </Button>
         </div>
 
@@ -58,33 +59,38 @@ export default function Projects() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              whileHover={{ y: -5 }}
+              className="group"
             >
-              <Card className="h-full border-border/50 bg-card overflow-hidden group hover:border-primary/50 transition-colors">
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-xl font-bold font-display">{project.title}</CardTitle>
-                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <a href={project.github} className="p-2 hover:bg-muted rounded-full transition-colors">
-                        <Github size={18} />
-                      </a>
-                      <a href={project.link} className="p-2 hover:bg-muted rounded-full transition-colors">
-                        <ExternalLink size={18} />
-                      </a>
-                    </div>
-                  </div>
-                  <CardDescription className="text-base">
-                    {project.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardFooter className="flex flex-wrap gap-2 mt-auto pt-0">
+              <div className="h-full bg-card border border-primary/30 p-6 hover:border-primary hover:shadow-[0_0_15px_rgba(0,255,0,0.15)] transition-all relative">
+                <div className="absolute top-0 right-0 p-2 opacity-50 group-hover:opacity-100">
+                  <FolderOpen className="text-primary" />
+                </div>
+                
+                <h3 className="text-xl font-bold font-mono text-white mb-2 group-hover:text-primary transition-colors">
+                  {project.title}
+                </h3>
+                
+                <p className="text-gray-400 mb-6 font-mono text-sm h-20">
+                  {project.description}
+                </p>
+                
+                <div className="flex flex-wrap gap-2 mb-6">
                   {project.tags.map((tag, i) => (
-                    <span key={i} className="px-2.5 py-0.5 rounded-md bg-secondary/10 text-secondary text-xs font-medium border border-secondary/20">
+                    <span key={i} className="text-xs font-mono px-2 py-1 bg-secondary text-primary border border-primary/20">
                       {tag}
                     </span>
                   ))}
-                </CardFooter>
-              </Card>
+                </div>
+                
+                <div className="flex gap-4 border-t border-primary/20 pt-4">
+                  <a href={project.github} className="flex items-center gap-2 text-sm text-primary/70 hover:text-primary font-mono">
+                    <Github size={16} /> Source
+                  </a>
+                  <a href={project.link} className="flex items-center gap-2 text-sm text-primary/70 hover:text-primary font-mono">
+                    <ExternalLink size={16} /> Live Demo
+                  </a>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>

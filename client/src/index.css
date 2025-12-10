@@ -24,57 +24,45 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   
-  --font-sans: 'Outfit', sans-serif;
-  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
 }
 
 :root {
-  --background: 240 10% 98%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 262 83% 58%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 190 90% 50%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 320 90% 60%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 262 83% 58%;
-  --radius: 0.75rem;
-}
-
-.dark {
-  --background: 240 10% 4%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 6%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 6%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 262 83% 65%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 190 90% 60%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 320 90% 60%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 262 83% 65%;
+  /* Dark Hacker Theme by Default */
+  --background: 0 0% 0%; /* Pure Black */
+  --foreground: 120 100% 50%; /* Terminal Green */
+  
+  --card: 0 0% 5%;
+  --card-foreground: 120 100% 50%;
+  
+  --popover: 0 0% 5%;
+  --popover-foreground: 120 100% 50%;
+  
+  --primary: 120 100% 50%; /* Matrix Green */
+  --primary-foreground: 0 0% 0%;
+  
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 120 100% 50%;
+  
+  --muted: 0 0% 15%;
+  --muted-foreground: 120 50% 40%;
+  
+  --accent: 180 100% 50%; /* Cyan for variety */
+  --accent-foreground: 0 0% 0%;
+  
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 120 50% 20%;
+  --input: 120 50% 10%;
+  --ring: 120 100% 50%;
+  
+  --radius: 0rem; /* Sharp edges for hacker vibe */
 }
 
 @layer base {
@@ -82,30 +70,51 @@
     @apply border-border;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground selection:bg-primary/30 selection:text-primary-foreground;
+    @apply font-mono antialiased bg-background text-foreground selection:bg-primary selection:text-black;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    @apply font-sans tracking-tight font-bold uppercase;
   }
 }
 
 @layer utilities {
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-secondary;
+  .text-glow {
+    text-shadow: 0 0 10px hsla(120, 100%, 50%, 0.5);
   }
-  .glass {
-    @apply bg-background/60 backdrop-blur-lg border border-white/10;
+  .box-glow {
+    box-shadow: 0 0 20px hsla(120, 100%, 50%, 0.1);
   }
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/50;
+  .scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      transparent 50%,
+      rgba(0, 0, 0, 0.5) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.1;
+  }
+  .crt-flicker {
+    animation: flicker 0.15s infinite;
   }
   
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-    100% { transform: translateY(0px); }
+  @keyframes flicker {
+    0% { opacity: 0.97; }
+    50% { opacity: 1; }
+    100% { opacity: 0.98; }
   }
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .animate-blink {
+    animation: blink 1s step-end infinite;
   }
 }
