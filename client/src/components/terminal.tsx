@@ -130,7 +130,15 @@ Available commands:
   whoami        Print user
   date          Print date
   open [url]    Open URL
+  source        How to get source code
   exit          Close terminal`;
+        break;
+
+      case "source":
+      case "repo":
+        response = `To get the source code of this portfolio:
+1. In Replit: Click the project title > Download as Zip
+2. Or fork this Repl to your own account!`;
         break;
         
       case "ls":
