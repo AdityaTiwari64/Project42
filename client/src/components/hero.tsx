@@ -51,7 +51,7 @@ export default function Hero() {
                 <a href="https://github.com/AdityaTiwari64" target="_blank" rel="noopener noreferrer" className="text-primary/60 hover:text-primary transition-colors">
                   <Github size={24} />
                 </a>
-                <a href="https://linkedin.com/in/aditya-tiwari" target="_blank" rel="noopener noreferrer" className="text-primary/60 hover:text-primary transition-colors">
+                <a href="https://www.linkedin.com/in/aditya-tiwari-85b258216?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className="text-primary/60 hover:text-primary transition-colors">
                   <Linkedin size={24} />
                 </a>
                 <a href="mailto:adiaarushtiwari@gmail.com" className="text-primary/60 hover:text-primary transition-colors">
