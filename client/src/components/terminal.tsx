@@ -27,7 +27,7 @@ const fileSystem: FileSystem = {
 
 export default function Terminal() {
   const [input, setInput] = useState("");
-  const [history, setHistory] = useState<string[]>([
+  const [output, setOutput] = useState<string[]>([
     "AdityaOS v2.0 (tty1)",
     "Login: guest",
     "Password: *",
@@ -39,6 +39,9 @@ export default function Terminal() {
   ]);
   const [isOpen, setIsOpen] = useState(false);
   const [currentPath, setCurrentPath] = useState<string[]>([]);
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +49,7 @@ export default function Terminal() {
     if (isOpen && bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [history, isOpen]);
+  }, [output, isOpen]);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -54,13 +57,48 @@ export default function Terminal() {
     }
   }, [isOpen]);
 
-  const getCurrentDir = (): FileSystem => {
+  // Helper to resolve a path string to a file system object and normalized path array
+  const resolvePath = (pathArgs: string): { target: any, newPath: string[], error?: string } => {
+    if (!pathArgs || pathArgs === "~") {
+      return { target: fileSystem, newPath: [] };
+    }
+
+    let searchPath = [...currentPath];
+    if (pathArgs.startsWith("/")) {
+      searchPath = [];
+      pathArgs = pathArgs.substring(1); // remove leading slash
+    }
+
+    const parts = pathArgs.split("/").filter(p => p && p !== ".");
+
+    for (const part of parts) {
+      if (part === "..") {
+        if (searchPath.length > 0) {
+          searchPath.pop();
+        }
+      } else {
+        searchPath.push(part);
+      }
+    }
+
+    // Traverse to verify existence
+    let current: any = fileSystem;
+    for (const segment of searchPath) {
+      if (current && typeof current === 'object' && segment in current) {
+        current = current[segment];
+      } else {
+        return { target: null, newPath: searchPath, error: `No such file or directory` };
+      }
+    }
+
+    return { target: current, newPath: searchPath };
+  };
+
+  const getCurrentDirObj = () => {
     let current: any = fileSystem;
     for (const segment of currentPath) {
       if (current[segment] && typeof current[segment] === 'object') {
         current = current[segment];
-      } else {
-        return {};
       }
     }
     return current;
@@ -70,76 +108,84 @@ export default function Terminal() {
     const trimmedCmd = cmd.trim();
     if (!trimmedCmd) return;
     
+    // Add to history
+    setCommandHistory(prev => [...prev, trimmedCmd]);
+    setHistoryIndex(-1);
+
     const parts = trimmedCmd.split(" ");
     const command = parts[0].toLowerCase();
-    const args = parts.slice(1);
+    const args = parts.slice(1).join(" "); // Join rest of args for paths with spaces (though simple split logic used before)
     
     let response: string = "";
 
     switch (command) {
       case "help":
         response = `GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)
-These shell commands are defined internally.  Type 'help' to see this list.
-
 Available commands:
   ls [dir]      List directory contents
-  cd [dir]      Change the shell working directory
-  cat [file]    Concatenate and print files
-  clear         Clear the terminal screen
-  whoami        Print effective userid
-  date          Print the system date and time
-  pwd           Print name of current/working directory
-  echo [text]   Display a line of text
-  exit          Close the terminal session
-  open [url]    Open a URL in a new tab`;
+  cd [dir]      Change directory (supports .. and /)
+  cat [file]    Read file content
+  clear         Clear screen
+  pwd           Print working directory
+  whoami        Print user
+  date          Print date
+  open [url]    Open URL
+  exit          Close terminal`;
         break;
         
       case "ls":
-        const dir = getCurrentDir();
-        const items = Object.keys(dir).map(key => {
-          const isDir = typeof dir[key] === 'object';
+        let targetDir = getCurrentDirObj();
+        let listLabel = "";
+        
+        if (args) {
+          const resolved = resolvePath(args);
+          if (resolved.error) {
+             response = `ls: cannot access '${args}': ${resolved.error}`;
+             break;
+          }
+          if (typeof resolved.target === 'string') {
+             response = args; // It's a file
+             break;
+          }
+          targetDir = resolved.target;
+        }
+
+        const items = Object.keys(targetDir).map(key => {
+          const isDir = typeof targetDir[key] === 'object';
           return isDir ? `<span class="text-blue-400 font-bold">${key}/</span>` : key;
         });
         response = items.join("  ");
         break;
 
       case "cd":
-        if (!args[0] || args[0] === "~") {
-          setCurrentPath([]);
-        } else if (args[0] === "..") {
-          setCurrentPath(prev => prev.slice(0, -1));
+        const resolvedCd = resolvePath(args || "~");
+        if (resolvedCd.error) {
+          response = `bash: cd: ${args}: ${resolvedCd.error}`;
+        } else if (typeof resolvedCd.target === 'string') {
+          response = `bash: cd: ${args}: Not a directory`;
         } else {
-          const current = getCurrentDir();
-          if (current[args[0]] && typeof current[args[0]] === 'object') {
-            setCurrentPath(prev => [...prev, args[0]]);
-          } else if (current[args[0]]) {
-            response = `bash: cd: ${args[0]}: Not a directory`;
-          } else {
-            response = `bash: cd: ${args[0]}: No such file or directory`;
-          }
+          setCurrentPath(resolvedCd.newPath);
         }
         break;
 
       case "cat":
-        if (!args[0]) {
+        if (!args) {
           response = "usage: cat [file]";
         } else {
-          const current = getCurrentDir();
-          const content = current[args[0]];
+          const resolvedCat = resolvePath(args);
           
-          if (content) {
-            if (typeof content === 'string') {
-              if (args[0] === "resume.pdf") {
+          if (resolvedCat.error) {
+             response = `cat: ${args}: ${resolvedCat.error}`;
+          } else if (typeof resolvedCat.target !== 'string') {
+             response = `cat: ${args}: Is a directory`;
+          } else {
+             const content = resolvedCat.target;
+             if (args.endsWith("resume.pdf") || content.includes("[LINK]")) {
                 window.open("/attached_assets/resume_Aditya_Anil_Tiwari_1765379185632.pdf", "_blank");
                 response = "Opening resume in new tab...";
-              } else {
+             } else {
                 response = content;
-              }
-            } else {
-              response = `cat: ${args[0]}: Is a directory`;
-            }
-          } else {
-            response = `cat: ${args[0]}: No such file or directory`;
+             }
           }
         }
         break;
@@ -157,13 +203,13 @@ Available commands:
         break;
         
       case "echo":
-        response = args.join(" ");
+        response = args;
         break;
 
       case "open":
-        if (args[0]) {
-            window.open(args[0].startsWith('http') ? args[0] : `https://${args[0]}`, '_blank');
-            response = `Opening ${args[0]}...`;
+        if (args) {
+            window.open(args.startsWith('http') ? args : `https://${args}`, '_blank');
+            response = `Opening ${args}...`;
         } else {
             response = "usage: open [url]";
         }
@@ -174,7 +220,7 @@ Available commands:
         break;
 
       case "clear":
-        setHistory([]);
+        setOutput([]);
         return;
 
       case "exit":
@@ -188,16 +234,45 @@ Available commands:
     const pathString = currentPath.length > 0 ? `/${currentPath.join("/")}` : "~";
     const prompt = `guest@aditya:${pathString}$ ${trimmedCmd}`;
     
-    setHistory((prev) => [...prev, prompt, response]);
+    setOutput((prev) => [...prev, prompt, response]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleCommand(input);
       setInput("");
-    }
-    if (e.key === "ArrowUp") {
-      // Future: Implement command history navigation
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (commandHistory.length > 0) {
+        const newIndex = historyIndex < commandHistory.length - 1 ? historyIndex + 1 : historyIndex;
+        setHistoryIndex(newIndex);
+        setInput(commandHistory[commandHistory.length - 1 - newIndex]);
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        const newIndex = historyIndex - 1;
+        setHistoryIndex(newIndex);
+        setInput(commandHistory[commandHistory.length - 1 - newIndex]);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setInput("");
+      }
+    } else if (e.key === "Tab") {
+      e.preventDefault();
+      // Simple tab completion
+      const parts = input.split(" ");
+      const partial = parts[parts.length - 1];
+      
+      if (partial) {
+        const currentDir = getCurrentDirObj();
+        const matches = Object.keys(currentDir).filter(k => k.startsWith(partial));
+        
+        if (matches.length === 1) {
+          parts[parts.length - 1] = matches[0];
+          setInput(parts.join(" "));
+        }
+      }
     }
   };
 
@@ -237,7 +312,7 @@ Available commands:
               className="flex-1 p-4 overflow-y-auto text-primary space-y-1 custom-scrollbar font-mono text-xs md:text-sm leading-relaxed" 
               onClick={() => inputRef.current?.focus()}
             >
-              {history.map((line, i) => (
+              {output.map((line, i) => (
                 <div 
                   key={i} 
                   className="whitespace-pre-wrap break-words"
